@@ -51,32 +51,41 @@ def save_settings():
     # Send the updated settings to Arduino as a JSON command
     send_command(json.dumps(new_settings))
 
-    # Update LEDs based on the new settings
-    update_leds_based_on_settings(orange_state, green_state, blue_state)
-
 # Functions to control individual color channels
 def toggle_orange():
     orange_state = "on" if state_orange_var.get() == "off" else "off"
     state_orange_var.set(orange_state)# Update MongoDB and send commands to Arduino
     update_mongodb()
-    # Add the following line to send the 'G' command to Arduino
-    send_command('O')
+
+    # Send the appropriate command to Arduino based on the state
+    if orange_state == "on":
+        send_command('O')
+    else:
+        send_command('o')
 
 def toggle_green():
     green_state = "on" if state_green_var.get() == "off" else "off"
     state_green_var.set(green_state)
     # Update MongoDB and send commands to Arduino
     update_mongodb()
-    # Add the following line to send the 'G' command to Arduino
-    send_command('G')
+    
+    # Send the appropriate command to Arduino based on the state
+    if green_state == "on":
+        send_command('G')
+    else:
+        send_command('g')
 
 def toggle_blue():
     blue_state = "on" if state_blue_var.get() == "off" else "off"
     state_blue_var.set(blue_state)
     # Update MongoDB and send commands to Arduino
     update_mongodb()
-    # Add the following line to send the 'G' command to Arduino
-    send_command('B')
+
+    # Send the appropriate command to Arduino based on the state
+    if blue_state == "on":
+        send_command('B')
+    else:
+        send_command('b')
 
 # Function to save current settings to MongoDB
 def update_mongodb():
@@ -122,19 +131,21 @@ def load_settings():
         state_green_var.set(state_green)
         state_blue_var.set(state_blue)
         
-        #Update the LEDs based on the loaded settings
-        if state_orange == "on":
-            toggle_orange()
-        elif state_orange == "off":
-            pass
-        if state_green == "on":
-            toggle_green()
-        elif state_green == "off":
-            pass
-        if state_blue == "on":
-            toggle_blue()
-        elif state_blue == "off":
-            pass
+        # #Update the LEDs based on the loaded settings
+        # if state_orange == "on":
+        #     toggle_orange()
+        # elif state_orange == "off":
+        #     pass
+        # if state_green == "on":
+        #     toggle_green()
+        # elif state_green == "off":
+        #     pass
+        # if state_blue == "on":
+        #     toggle_blue()
+        # elif state_blue == "off":
+        #     pass
+
+        update_leds_based_on_settings()
 
             
     else:
@@ -142,21 +153,39 @@ def load_settings():
         pass
 
 # Define the function that updates the LEDs based on settings
-def update_leds_based_on_settings(orange_state, green_state, blue_state):
+def update_leds_based_on_settings():
+    # Get the current state of the LED buttons
+    orange_state = state_orange_var.get()
+    green_state = state_green_var.get()
+    blue_state = state_blue_var.get()
+    
+    # Update the LEDs or take any necessary actions based on the states
     if orange_state == "on":
-        toggle_orange()
-    elif orange_state == "off":
-        pass
+        # Perform actions to turn on the orange LED
+        # You can use the 'O' command to send to Arduino here
+        send_command('O')
+    else:
+        # Perform actions to turn off the orange LED
+        # You can use the 'o' command to send to Arduino here
+        send_command('o')
 
     if green_state == "on":
-        toggle_green()
-    elif green_state == "off":
-        pass
+        # Perform actions to turn on the green LED
+        # You can use the 'G' command to send to Arduino here
+        send_command('G')
+    else:
+        # Perform actions to turn off the green LED
+        # You can use the 'g' command to send to Arduino here
+        send_command('g')
 
     if blue_state == "on":
-        toggle_blue()
-    elif blue_state == "off":
-        pass
+        # Perform actions to turn on the blue LED
+        # You can use the 'B' command to send to Arduino here
+        send_command('B')
+    else:
+        # Perform actions to turn off the blue LED
+        # You can use the 'b' command to send to Arduino here
+        send_command('b')
 
 # Create the main application window
 app = tk.Tk()
