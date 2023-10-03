@@ -8,7 +8,7 @@ import time
 uri = "mongodb+srv://ndogra:sit314@sit314.rxnvgsq.mongodb.net/?retryWrites=true&w=majority"
 
 # MongoDB connection
-client = MongoClient(uri)  # Update with your MongoDB connection details
+client = MongoClient(uri)
 
 # Send a ping to confirm a successful connection
 try:
@@ -28,64 +28,23 @@ def send_command(command):
     ser.write('\n'.encode('utf-8'))
     time.sleep(1)  # Allow some time for Arduino to process the command
 
-# Function to save current settings to MongoDB
-def save_settings():
-    room_name = room_name_var.get()
-    orange_state = state_orange_var.get()
-    green_state = state_green_var.get()
-    blue_state = state_blue_var.get()
-    
-    # Create a document with the new settings
-    new_settings = {
-        "name": room_name,
-        "color_channels": {
-            "orange": orange_state,
-            "green": green_state,
-            "blue": blue_state
-        }
-    }
-    
-    # Update or insert the document in MongoDB
-    collection.update_one({"name": room_name}, {"$set": new_settings}, upsert=True)
-    
-    # Send the updated settings to Arduino as a JSON command
-    send_command(json.dumps(new_settings))
-
 # Functions to control individual color channels
 def toggle_orange():
     orange_state = "on" if state_orange_var.get() == "off" else "off"
     state_orange_var.set(orange_state)# Update MongoDB and send commands to Arduino
     update_mongodb()
 
-    # Send the appropriate command to Arduino based on the state
-    if orange_state == "on":
-        send_command('O')
-    else:
-        send_command('o')
-
 def toggle_green():
     green_state = "on" if state_green_var.get() == "off" else "off"
     state_green_var.set(green_state)
     # Update MongoDB and send commands to Arduino
     update_mongodb()
-    
-    # Send the appropriate command to Arduino based on the state
-    if green_state == "on":
-        send_command('G')
-    else:
-        send_command('g')
 
 def toggle_blue():
     blue_state = "on" if state_blue_var.get() == "off" else "off"
     state_blue_var.set(blue_state)
     # Update MongoDB and send commands to Arduino
     update_mongodb()
-
-    # Send the appropriate command to Arduino based on the state
-    if blue_state == "on":
-        send_command('B')
-    else:
-        send_command('b')
 
 # Function to save current settings to MongoDB
 def update_mongodb():
@@ -94,7 +53,7 @@ def update_mongodb():
     green_state = state_green_var.get()
     blue_state = state_blue_var.get()
 
-    # Create a document with the new settings
+    # Creates a document with the new settings
     new_settings = {
         "name": room_name,
         "color_channels": {
@@ -104,7 +63,7 @@ def update_mongodb():
         }
     }
 
-    # Update or insert the document in MongoDB
+    # Update/insert the document in MongoDB
     collection.update_one({"name": room_name}, {"$set": new_settings}, upsert=True)
 
     # Send the updated settings to Arduino as a JSON command
@@ -130,74 +89,43 @@ def load_settings():
         state_orange_var.set(state_orange)
         state_green_var.set(state_green)
         state_blue_var.set(state_blue)
-        
-        # #Update the LEDs based on the loaded settings
-        # if state_orange == "on":
-        #     toggle_orange()
-        # elif state_orange == "off":
-        #     pass
-        # if state_green == "on":
-        #     toggle_green()
-        # elif state_green == "off":
-        #     pass
-        # if state_blue == "on":
-        #     toggle_blue()
-        # elif state_blue == "off":
-        #     pass
 
         update_leds_based_on_settings()
 
             
     else:
-        # Handle case when no settings are found in MongoDB
         pass
 
-# Define the function that updates the LEDs based on settings
+# Updates the LEDs based on settings
 def update_leds_based_on_settings():
     # Get the current state of the LED buttons
     orange_state = state_orange_var.get()
     green_state = state_green_var.get()
     blue_state = state_blue_var.get()
     
-    # Update the LEDs or take any necessary actions based on the states
-    if orange_state == "on":
-        # Perform actions to turn on the orange LED
-        # You can use the 'O' command to send to Arduino here
-        send_command('O')
-    else:
-        # Perform actions to turn off the orange LED
-        # You can use the 'o' command to send to Arduino here
-        send_command('o')
+    # Create a dictionary with the new settings
+    new_settings = {
+        "color_channels": {
+            "orange": orange_state,
+            "green": green_state,
+            "blue": blue_state
+        }
+    }
 
-    if green_state == "on":
-        # Perform actions to turn on the green LED
-        # You can use the 'G' command to send to Arduino here
-        send_command('G')
-    else:
-        # Perform actions to turn off the green LED
-        # You can use the 'g' command to send to Arduino here
-        send_command('g')
-
-    if blue_state == "on":
-        # Perform actions to turn on the blue LED
-        # You can use the 'B' command to send to Arduino here
-        send_command('B')
-    else:
-        # Perform actions to turn off the blue LED
-        # You can use the 'b' command to send to Arduino here
-        send_command('b')
+    # Send the updated settings to Arduino as a JSON command
+    send_command(json.dumps(new_settings))
 
 # Create the main application window
 app = tk.Tk()
 app.title("Smart Lighting Control")
 app.configure(background='#1B2329')
 
-# Set the initial window size (width x height)
-app.geometry("300x300")  # Adjust the dimensions as needed
+# Sets the initial window size 
+app.geometry("300x300")
 
-button_width = 20  # Set your desired button width
-button_height = 2  # Set your desired button height
-button_padding = 5  # Set your desired padding value
+button_width = 20  # button width
+button_height = 2  # button height
+button_padding = 5  # padding value
 
 button_frame = tk.Frame(app, highlightbackground='white', highlightthickness=1)
 
@@ -234,7 +162,7 @@ load_button = tk.Button(app, text="Load Settings", command=load_settings)
 load_button.pack(pady=3)
 
 # Save button to save current settings
-save_button = tk.Button(app, text="Save Settings", command=save_settings)
+save_button = tk.Button(app, text="Save Settings", command=update_mongodb)
 save_button.pack(pady=3)
 
 # Run the application
